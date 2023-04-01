@@ -1,6 +1,7 @@
 import type { ChatRequest, ChatReponse } from "./api/openai/typing";
 import { filterConfig, Message, ModelConfig, useAccessStore } from "./store";
 import Locale from "./locales";
+import qs from "qs";
 
 if (!Array.prototype.at) {
   require('array.prototype.at/auto');
@@ -13,7 +14,7 @@ const makeRequestParam = (
   options?: {
     filterBot?: boolean;
     stream?: boolean;
-  }
+  },
 ): ChatRequest => {
   let sendMessages = messages.map((v) => ({
     role: v.role,
@@ -74,7 +75,7 @@ export async function requestChat(messages: Message[]) {
 
 export async function requestUsage() {
   const res = await requestOpenaiClient(
-    "dashboard/billing/credit_grants?_vercel_no_cache=1"
+    "dashboard/billing/credit_grants?_vercel_no_cache=1",
   )(null, "GET");
 
   try {
@@ -97,32 +98,22 @@ export async function requestChatStream(
     onMessage: (message: string, done: boolean) => void;
     onError: (error: Error) => void;
     onController?: (controller: AbortController) => void;
-  }
+  },
 ) {
-  const req = makeRequestParam(messages, {
-    stream: true,
-    filterBot: options?.filterBot,
-  });
-
-  // valid and assign model config
-  if (options?.modelConfig) {
-    Object.assign(req, filterConfig(options.modelConfig));
-  }
-
-  console.log("[Request] ", req);
-
   const controller = new AbortController();
   const reqTimeoutId = setTimeout(() => controller.abort(), TIME_OUT_MS);
 
   try {
-    const res = await fetch("/api/chat-stream", {
-      method: "POST",
+    const lastMessage = messages[messages.length - 1];
+    const params: ChatGPTRequest = {
+      sentence: lastMessage.content,
+    };
+    const queryString = qs.stringify(params);
+    const res = await fetch(`/api/chatgpt?${queryString}`, {
+      method: "GET",
       headers: {
-        "Content-Type": "application/json",
-        path: "v1/chat/completions",
         ...getHeaders(),
       },
-      body: JSON.stringify(req),
       signal: controller.signal,
     });
     clearTimeout(reqTimeoutId);
@@ -135,28 +126,9 @@ export async function requestChatStream(
     };
 
     if (res.ok) {
-      const reader = res.body?.getReader();
-      const decoder = new TextDecoder();
-
-      options?.onController?.(controller);
-
-      while (true) {
-        // handle time out, will stop if no response in 10 secs
-        const resTimeoutId = setTimeout(() => finish(), TIME_OUT_MS);
-        const content = await reader?.read();
-        clearTimeout(resTimeoutId);
-        const text = decoder.decode(content?.value);
-        responseText += text;
-
-        const done = !content || content.done;
-        options?.onMessage(responseText, false);
-
-        if (done) {
-          break;
-        }
-      }
-
-      finish();
+      const resp: ChatGPTResponse = await res.json();
+      responseText = resp.message ? resp.message : resp.detail;
+      options?.onMessage(responseText, true);
     } else if (res.status === 401) {
       console.error("Anauthorized");
       responseText = Locale.Error.Unauthorized;
@@ -192,7 +164,7 @@ export const ControllerPool = {
   addController(
     sessionIndex: number,
     messageIndex: number,
-    controller: AbortController
+    controller: AbortController,
   ) {
     const key = this.key(sessionIndex, messageIndex);
     this.controllers[key] = controller;
