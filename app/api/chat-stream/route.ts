@@ -1,7 +1,10 @@
 import { createParser } from "eventsource-parser";
 import { NextRequest } from "next/server";
 
-const SERVER_URL = "http://localhost:5000";
+const SERVER_URL = process.env.SERVER_URL
+  ? process.env.SERVER_URL
+  : "http://localhost:5000";
+
 export const ask = async (req: NextRequest): Promise<Response> => {
   const params = req.nextUrl.searchParams;
   const queryString = params.toString();
