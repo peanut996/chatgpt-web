@@ -1,5 +1,5 @@
-import type { ChatRequest, ChatReponse } from "./api/openai/typing";
-import { filterConfig, Message, ModelConfig, useAccessStore } from "./store";
+import type { ChatReponse, ChatRequest } from "./api/openai/typing";
+import { Message, ModelConfig, useAccessStore } from "./store";
 import Locale from "./locales";
 import qs from "qs";
 
@@ -109,7 +109,7 @@ export async function requestChatStream(
       sentence: lastMessage.content,
     };
     const queryString = qs.stringify(params);
-    const res = await fetch(`/api/chatgpt?${queryString}`, {
+    const res = await fetch(`/api/chat-stream?${queryString}`, {
       method: "GET",
       headers: {
         ...getHeaders(),
@@ -126,9 +126,28 @@ export async function requestChatStream(
     };
 
     if (res.ok) {
-      const resp: ChatGPTResponse = await res.json();
-      responseText = resp.message ? resp.message : resp.detail;
-      options?.onMessage(responseText, true);
+      const reader = res.body?.getReader();
+      const decoder = new TextDecoder();
+
+      options?.onController?.(controller);
+
+      while (true) {
+        // handle time out, will stop if no response in 10 secs
+        const resTimeoutId = setTimeout(() => finish(), TIME_OUT_MS);
+        const content = await reader?.read();
+        clearTimeout(resTimeoutId);
+        const text = decoder.decode(content?.value);
+        responseText += text;
+        console.log(responseText);
+
+        const done = !content || content.done;
+        options?.onMessage(responseText, false);
+
+        if (done) {
+          break;
+        }
+      }
+      finish();
     } else if (res.status === 401) {
       console.error("Anauthorized");
       responseText = Locale.Error.Unauthorized;

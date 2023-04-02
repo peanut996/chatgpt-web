@@ -1,12 +1,22 @@
 import { createParser } from "eventsource-parser";
 import { NextRequest } from "next/server";
-import { requestOpenai } from "../common";
+
+const SERVER_URL = "http://localhost:5000";
+export const ask = async (req: NextRequest): Promise<Response> => {
+  console.log("ready to get");
+  const params = req.nextUrl.searchParams;
+  const queryString = params.toString();
+  const url = `${SERVER_URL}/chat-stream?${queryString}`;
+  return fetch(url, {
+    method: "GET",
+  });
+};
 
 async function createStream(req: NextRequest) {
   const encoder = new TextEncoder();
   const decoder = new TextDecoder();
 
-  const res = await requestOpenai(req);
+  const res = await ask(req);
 
   const stream = new ReadableStream({
     async start(controller) {
@@ -19,8 +29,8 @@ async function createStream(req: NextRequest) {
             return;
           }
           try {
-            const json = JSON.parse(data);
-            const text = json.choices[0].delta.content;
+            const json: ChatGPTResponse = JSON.parse(data);
+            const text = json.message ? json.message : json.detail;
             const queue = encoder.encode(text);
             controller.enqueue(queue);
           } catch (e) {
@@ -38,7 +48,7 @@ async function createStream(req: NextRequest) {
   return stream;
 }
 
-export async function POST(req: NextRequest) {
+export async function GET(req: NextRequest) {
   try {
     const stream = await createStream(req);
     return new Response(stream);
