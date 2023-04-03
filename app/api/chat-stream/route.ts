@@ -20,7 +20,7 @@ async function createStream(req: NextRequest) {
 
   const res = await ask(req);
 
-  return new ReadableStream({
+  const readableStream = new ReadableStream({
     async start(controller) {
       function onParse(event: any) {
         if (event.type === "event") {
@@ -53,6 +53,7 @@ async function createStream(req: NextRequest) {
       }
     },
   });
+  return readableStream;
 }
 
 export async function GET(req: NextRequest) {
