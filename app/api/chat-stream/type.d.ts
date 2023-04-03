@@ -7,6 +7,8 @@ interface ChatContext {
 interface ChatGPTRequest {
   sentence: string;
   user_id?: string;
+
+  model?: string;
 }
 
 interface ChatGPTResponse {

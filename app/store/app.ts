@@ -2,17 +2,13 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 import { type ChatCompletionResponseMessage } from "openai";
-import {
-  ControllerPool,
-  requestChatStream,
-  requestWithPrompt,
-} from "../requests";
-import { trimTopic } from "../utils";
+import { ControllerPool, requestChatStream } from "../requests";
 
 import Locale from "../locales";
+import { v4 as uuid } from "uuid";
 
 if (!Array.prototype.at) {
-  require('array.prototype.at/auto');
+  require("array.prototype.at/auto");
 }
 
 export type Message = ChatCompletionResponseMessage & {
@@ -60,28 +56,16 @@ const ENABLE_GPT4 = true;
 
 export const ALL_MODELS = [
   {
+    name: "text-davinci-002-render-sha",
+    available: true,
+  },
+  {
+    name: "text-davinci-002-render-paid",
+    available: true,
+  },
+  {
     name: "gpt-4",
     available: ENABLE_GPT4,
-  },
-  {
-    name: "gpt-4-0314",
-    available: ENABLE_GPT4,
-  },
-  {
-    name: "gpt-4-32k",
-    available: ENABLE_GPT4,
-  },
-  {
-    name: "gpt-4-32k-0314",
-    available: ENABLE_GPT4,
-  },
-  {
-    name: "gpt-3.5-turbo",
-    available: true,
-  },
-  {
-    name: "gpt-3.5-turbo-0301",
-    available: true,
   },
 ];
 
@@ -157,14 +141,16 @@ export interface ChatSession {
   stat: ChatStat;
   lastUpdate: string;
   lastSummarizeIndex: number;
+  chatId: string;
 }
 
 const DEFAULT_TOPIC = Locale.Store.DefaultTopic;
 
 function createEmptySession(): ChatSession {
   const createDate = new Date().toLocaleString();
-
+  const chatId = uuid();
   return {
+    chatId: chatId,
     id: Date.now(),
     topic: DEFAULT_TOPIC,
     memoryPrompt: "",
@@ -320,6 +306,7 @@ export const useChatStore = create<ChatStore>()(
         const sendMessages = recentMessages.concat(userMessage);
         const sessionIndex = get().currentSessionIndex;
         const messageIndex = get().currentSession().messages.length + 1;
+        const chatId = get().currentSession().chatId;
 
         // save user's and bot's message
         get().updateCurrentSession((session) => {
@@ -358,6 +345,7 @@ export const useChatStore = create<ChatStore>()(
           },
           filterBot: !get().config.sendBotMessages,
           modelConfig: get().config.modelConfig,
+          userId: chatId,
         });
       },
 
@@ -402,68 +390,7 @@ export const useChatStore = create<ChatStore>()(
 
       summarizeSession() {
         const session = get().currentSession();
-
-        // should summarize topic after chating more than 50 words
-        const SUMMARIZE_MIN_LEN = 50;
-        if (
-          session.topic === DEFAULT_TOPIC &&
-          countMessages(session.messages) >= SUMMARIZE_MIN_LEN
-        ) {
-          requestWithPrompt(session.messages, Locale.Store.Prompt.Topic).then(
-            (res) => {
-              get().updateCurrentSession(
-                (session) => (session.topic = trimTopic(res)),
-              );
-            },
-          );
-        }
-
-        const config = get().config;
-        let toBeSummarizedMsgs = session.messages.slice(
-          session.lastSummarizeIndex,
-        );
-        const historyMsgLength = countMessages(toBeSummarizedMsgs);
-
-        if (historyMsgLength > 4000) {
-          toBeSummarizedMsgs = toBeSummarizedMsgs.slice(
-            -config.historyMessageCount,
-          );
-        }
-
-        // add memory prompt
-        toBeSummarizedMsgs.unshift(get().getMemoryPrompt());
-
-        const lastSummarizeIndex = session.messages.length;
-
-        console.log(
-          "[Chat History] ",
-          toBeSummarizedMsgs,
-          historyMsgLength,
-          config.compressMessageLengthThreshold,
-        );
-
-        if (historyMsgLength > config.compressMessageLengthThreshold) {
-          requestChatStream(
-            toBeSummarizedMsgs.concat({
-              role: "system",
-              content: Locale.Store.Prompt.Summarize,
-              date: "",
-            }),
-            {
-              filterBot: false,
-              onMessage(message, done) {
-                session.memoryPrompt = message;
-                if (done) {
-                  console.log("[Memory] ", session.memoryPrompt);
-                  session.lastSummarizeIndex = lastSummarizeIndex;
-                }
-              },
-              onError(error) {
-                console.error("[Summarize] ", error);
-              },
-            },
-          );
-        }
+        session.topic = session.messages[session.messages.length - 1].content;
       },
 
       updateStat(message) {

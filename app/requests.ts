@@ -1,10 +1,10 @@
-import type { ChatReponse, ChatRequest } from "./api/openai/typing";
+import type { ChatResponse, ChatRequest } from "./api/openai/typing";
 import { Message, ModelConfig, useAccessStore } from "./store";
 import Locale from "./locales";
 import qs from "qs";
 
 if (!Array.prototype.at) {
-  require('array.prototype.at/auto');
+  require("array.prototype.at/auto");
 }
 
 const TIME_OUT_MS = 300000;
@@ -66,7 +66,7 @@ export async function requestChat(messages: Message[]) {
   const res = await requestOpenaiClient("v1/chat/completions")(req);
 
   try {
-    const response = (await res.json()) as ChatReponse;
+    const response = (await res.json()) as ChatResponse;
     return response;
   } catch (error) {
     console.error("[Request Chat] ", error, res.body);
@@ -93,6 +93,7 @@ export async function requestUsage() {
 export async function requestChatStream(
   messages: Message[],
   options?: {
+    userId?: string;
     filterBot?: boolean;
     modelConfig?: ModelConfig;
     onMessage: (message: string, done: boolean) => void;
@@ -105,8 +106,11 @@ export async function requestChatStream(
 
   try {
     const lastMessage = messages[messages.length - 1];
+    const model = options?.modelConfig?.model;
     const params: ChatGPTRequest = {
       sentence: lastMessage.content,
+      model: model,
+      user_id: options?.userId,
     };
     const queryString = qs.stringify(params);
     const res = await fetch(`/api/chat-stream?${queryString}`, {
