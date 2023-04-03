@@ -1,23 +1,26 @@
 import { createParser } from "eventsource-parser";
 import { NextRequest } from "next/server";
-import { requestOpenai } from "../common";
+
+const SERVER_URL = process.env.SERVER_URL
+  ? process.env.SERVER_URL
+  : "http://localhost:5000";
+
+export const ask = async (req: NextRequest): Promise<Response> => {
+  const params = req.nextUrl.searchParams;
+  const queryString = params.toString();
+  const url = `${SERVER_URL}/chat-stream?${queryString}`;
+  return fetch(url, {
+    method: "GET",
+  });
+};
 
 async function createStream(req: NextRequest) {
   const encoder = new TextEncoder();
   const decoder = new TextDecoder();
 
-  const res = await requestOpenai(req);
+  const res = await ask(req);
 
-  const contentType = res.headers.get("Content-Type") ?? "";
-  if (!contentType.includes("stream")) {
-    const content = await (
-      await res.text()
-    ).replace(/provided:.*. You/, "provided: ***. You");
-    console.log("[Stream] error ", content);
-    return "```json\n" + content + "```";
-  }
-
-  const stream = new ReadableStream({
+  return new ReadableStream({
     async start(controller) {
       function onParse(event: any) {
         if (event.type === "event") {
@@ -28,8 +31,8 @@ async function createStream(req: NextRequest) {
             return;
           }
           try {
-            const json = JSON.parse(data);
-            const text = json.choices[0].delta.content;
+            const json: ChatGPTResponse = JSON.parse(data);
+            const text = json.message ? json.message : json.detail;
             const queue = encoder.encode(text);
             controller.enqueue(queue);
           } catch (e) {
@@ -44,12 +47,11 @@ async function createStream(req: NextRequest) {
       }
     },
   });
-  return stream;
 }
 
-export async function POST(req: NextRequest) {
+export async function GET(req: NextRequest) {
   try {
-    const stream = await createStream(req);
+    const stream: ReadableStream = await createStream(req);
     return new Response(stream);
   } catch (error) {
     console.error("[Chat Stream]", error);

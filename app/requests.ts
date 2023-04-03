@@ -1,9 +1,14 @@
-import type { ChatRequest, ChatReponse } from "./api/openai/typing";
-import { filterConfig, Message, ModelConfig, useAccessStore } from "./store";
+import type { ChatResponse, ChatRequest } from "./api/openai/typing";
+import { Message, ModelConfig, useAccessStore } from "./store";
 import Locale from "./locales";
 import { showToast } from "./components/ui-lib";
+import qs from "qs";
 
-const TIME_OUT_MS = 30000;
+if (!Array.prototype.at) {
+  require("array.prototype.at/auto");
+}
+
+const TIME_OUT_MS = 300000;
 
 const makeRequestParam = (
   messages: Message[],
@@ -63,7 +68,7 @@ export async function requestChat(messages: Message[]) {
   const res = await requestOpenaiClient("v1/chat/completions")(req);
 
   try {
-    const response = (await res.json()) as ChatReponse;
+    const response = (await res.json()) as ChatResponse;
     return response;
   } catch (error) {
     console.error("[Request Chat] ", error, res.body);
@@ -111,6 +116,7 @@ export async function requestUsage() {
 export async function requestChatStream(
   messages: Message[],
   options?: {
+    userId?: string;
     filterBot?: boolean;
     modelConfig?: ModelConfig;
     onMessage: (message: string, done: boolean) => void;
@@ -118,30 +124,23 @@ export async function requestChatStream(
     onController?: (controller: AbortController) => void;
   },
 ) {
-  const req = makeRequestParam(messages, {
-    stream: true,
-    filterBot: options?.filterBot,
-  });
-
-  // valid and assign model config
-  if (options?.modelConfig) {
-    Object.assign(req, filterConfig(options.modelConfig));
-  }
-
-  console.log("[Request] ", req);
-
   const controller = new AbortController();
   const reqTimeoutId = setTimeout(() => controller.abort(), TIME_OUT_MS);
 
   try {
-    const res = await fetch("/api/chat-stream", {
-      method: "POST",
+    const lastMessage = messages[messages.length - 1];
+    const model = options?.modelConfig?.model;
+    const params: ChatGPTRequest = {
+      sentence: lastMessage.content,
+      model: model,
+      user_id: options?.userId,
+    };
+    const queryString = qs.stringify(params);
+    const res = await fetch(`/api/chat-stream?${queryString}`, {
+      method: "GET",
       headers: {
-        "Content-Type": "application/json",
-        path: "v1/chat/completions",
         ...getHeaders(),
       },
-      body: JSON.stringify(req),
       signal: controller.signal,
     });
     clearTimeout(reqTimeoutId);
@@ -164,9 +163,8 @@ export async function requestChatStream(
         const resTimeoutId = setTimeout(() => finish(), TIME_OUT_MS);
         const content = await reader?.read();
         clearTimeout(resTimeoutId);
-        const text = decoder.decode(content?.value);
+        const text = decoder.decode(content?.value, { stream: !content?.done });
         responseText += text;
-
         const done = !content || content.done;
         options?.onMessage(responseText, false);
 
@@ -174,7 +172,6 @@ export async function requestChatStream(
           break;
         }
       }
-
       finish();
     } else if (res.status === 401) {
       console.error("Anauthorized");
