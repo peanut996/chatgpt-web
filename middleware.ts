@@ -15,7 +15,7 @@ export function middleware(req: NextRequest) {
   const accessCode = req.headers.get("access-code");
   const hashedCode = md5.hash(accessCode ?? "").trim();
 
-  console.log("[Auth] allowed hashed codes: ", [...ACCESS_CODES]);
+  console.log("[Auth] allowed hashed codes length: "+ ACCESS_CODES.size);
   console.log("[Auth] got access code:", accessCode);
   console.log("[Auth] hashed access code:", hashedCode);
 

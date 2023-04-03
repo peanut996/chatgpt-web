@@ -519,12 +519,6 @@ export function Chat(props: {
             />
           </div>
         </div>
-
-        <PromptToast
-          showToast={!hitBottom}
-          showModal={showPromptModal}
-          setShowModal={setShowPromptModal}
-        />
       </div>
 
       <div
