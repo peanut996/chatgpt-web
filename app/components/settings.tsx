@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import EmojiPicker, { Theme as EmojiTheme } from "emoji-picker-react";
 
@@ -7,25 +7,22 @@ import styles from "./settings.module.scss";
 import ResetIcon from "../icons/reload.svg";
 import CloseIcon from "../icons/close.svg";
 import ClearIcon from "../icons/clear.svg";
-import EditIcon from "../icons/edit.svg";
 
-import { List, ListItem, Popover, showToast } from "./ui-lib";
+import { List, ListItem, Popover } from "./ui-lib";
 
 import { IconButton } from "./button";
 import {
-  SubmitKey,
-  useChatStore,
-  Theme,
   ALL_MODELS,
-  useUpdateStore,
+  SubmitKey,
+  Theme,
   useAccessStore,
+  useChatStore,
+  useUpdateStore,
 } from "../store";
 import { Avatar } from "./chat";
 
 import Locale, { AllLangs, changeLang, getLang } from "../locales";
 import { getCurrentVersion } from "../utils";
-import Link from "next/link";
-import { UPDATE_URL } from "../constant";
 import { SearchService, usePromptStore } from "../store/prompt";
 import { requestUsage } from "../requests";
 
@@ -167,31 +164,6 @@ export function Settings(props: { closeSettings: () => void }) {
             </Popover>
           </SettingItem>
 
-          <SettingItem
-            title={Locale.Settings.Update.Version(currentId)}
-            subTitle={
-              checkingUpdate
-                ? Locale.Settings.Update.IsChecking
-                : hasNewVersion
-                ? Locale.Settings.Update.FoundUpdate(remoteId ?? "ERROR")
-                : Locale.Settings.Update.IsLatest
-            }
-          >
-            {checkingUpdate ? (
-              <div />
-            ) : hasNewVersion ? (
-              <Link href={UPDATE_URL} target="_blank" className="link">
-                {Locale.Settings.Update.GoToUpdate}
-              </Link>
-            ) : (
-              <IconButton
-                icon={<ResetIcon></ResetIcon>}
-                text={Locale.Settings.Update.CheckUpdate}
-                onClick={() => checkUpdate(true)}
-              />
-            )}
-          </SettingItem>
-
           <SettingItem title={Locale.Settings.SendKey}>
             <select
               value={config.submitKey}
@@ -306,20 +278,6 @@ export function Settings(props: { closeSettings: () => void }) {
               }
             ></input>
           </SettingItem>
-
-          <SettingItem
-            title={Locale.Settings.Prompt.List}
-            subTitle={Locale.Settings.Prompt.ListCount(
-              builtinCount,
-              customCount,
-            )}
-          >
-            <IconButton
-              icon={<EditIcon />}
-              text={Locale.Settings.Prompt.Edit}
-              onClick={() => showToast(Locale.WIP)}
-            />
-          </SettingItem>
         </List>
         <List>
           {enabledAccessControl ? (
@@ -339,78 +297,6 @@ export function Settings(props: { closeSettings: () => void }) {
           ) : (
             <></>
           )}
-
-          <SettingItem
-            title={Locale.Settings.Token.Title}
-            subTitle={Locale.Settings.Token.SubTitle}
-          >
-            <input
-              value={accessStore.token}
-              type="text"
-              placeholder={Locale.Settings.Token.Placeholder}
-              onChange={(e) => {
-                accessStore.updateToken(e.currentTarget.value);
-              }}
-            ></input>
-          </SettingItem>
-
-          <SettingItem
-            title={Locale.Settings.Usage.Title}
-            subTitle={
-              loadingUsage
-                ? Locale.Settings.Usage.IsChecking
-                : Locale.Settings.Usage.SubTitle(usage?.used ?? "[?]")
-            }
-          >
-            {loadingUsage ? (
-              <div />
-            ) : (
-              <IconButton
-                icon={<ResetIcon></ResetIcon>}
-                text={Locale.Settings.Usage.Check}
-                onClick={checkUsage}
-              />
-            )}
-          </SettingItem>
-
-          <SettingItem
-            title={Locale.Settings.HistoryCount.Title}
-            subTitle={Locale.Settings.HistoryCount.SubTitle}
-          >
-            <input
-              type="range"
-              title={config.historyMessageCount.toString()}
-              value={config.historyMessageCount}
-              min="0"
-              max="25"
-              step="2"
-              onChange={(e) =>
-                updateConfig(
-                  (config) =>
-                    (config.historyMessageCount = e.target.valueAsNumber),
-                )
-              }
-            ></input>
-          </SettingItem>
-
-          <SettingItem
-            title={Locale.Settings.CompressThreshold.Title}
-            subTitle={Locale.Settings.CompressThreshold.SubTitle}
-          >
-            <input
-              type="number"
-              min={500}
-              max={4000}
-              value={config.compressMessageLengthThreshold}
-              onChange={(e) =>
-                updateConfig(
-                  (config) =>
-                    (config.compressMessageLengthThreshold =
-                      e.currentTarget.valueAsNumber),
-                )
-              }
-            ></input>
-          </SettingItem>
         </List>
 
         <List>
@@ -430,62 +316,6 @@ export function Settings(props: { closeSettings: () => void }) {
                 </option>
               ))}
             </select>
-          </SettingItem>
-          <SettingItem
-            title={Locale.Settings.Temperature.Title}
-            subTitle={Locale.Settings.Temperature.SubTitle}
-          >
-            <input
-              type="range"
-              value={config.modelConfig.temperature.toFixed(1)}
-              min="0"
-              max="2"
-              step="0.1"
-              onChange={(e) => {
-                updateConfig(
-                  (config) =>
-                    (config.modelConfig.temperature =
-                      e.currentTarget.valueAsNumber),
-                );
-              }}
-            ></input>
-          </SettingItem>
-          <SettingItem
-            title={Locale.Settings.MaxTokens.Title}
-            subTitle={Locale.Settings.MaxTokens.SubTitle}
-          >
-            <input
-              type="number"
-              min={100}
-              max={4096}
-              value={config.modelConfig.max_tokens}
-              onChange={(e) =>
-                updateConfig(
-                  (config) =>
-                    (config.modelConfig.max_tokens =
-                      e.currentTarget.valueAsNumber),
-                )
-              }
-            ></input>
-          </SettingItem>
-          <SettingItem
-            title={Locale.Settings.PresencePenlty.Title}
-            subTitle={Locale.Settings.PresencePenlty.SubTitle}
-          >
-            <input
-              type="range"
-              value={config.modelConfig.presence_penalty.toFixed(1)}
-              min="-2"
-              max="2"
-              step="0.5"
-              onChange={(e) => {
-                updateConfig(
-                  (config) =>
-                    (config.modelConfig.presence_penalty =
-                      e.currentTarget.valueAsNumber),
-                );
-              }}
-            ></input>
           </SettingItem>
         </List>
       </div>

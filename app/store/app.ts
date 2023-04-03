@@ -45,9 +45,6 @@ export interface ChatConfig {
 
   modelConfig: {
     model: string;
-    temperature: number;
-    max_tokens: number;
-    presence_penalty: number;
   };
 }
 
@@ -81,22 +78,13 @@ export function isValidNumber(x: number, min: number, max: number) {
 }
 
 export function filterConfig(oldConfig: ModelConfig): Partial<ModelConfig> {
-  const config = Object.assign({}, oldConfig);
+  const config = Object.assign({}, oldConfig) as any;
 
   const validator: {
     [k in keyof ModelConfig]: (x: ModelConfig[keyof ModelConfig]) => boolean;
   } = {
     model(x) {
       return isValidModel(x as string);
-    },
-    max_tokens(x) {
-      return isValidNumber(x as number, 100, 32000);
-    },
-    presence_penalty(x) {
-      return isValidNumber(x as number, -2, 2);
-    },
-    temperature(x) {
-      return isValidNumber(x as number, 0, 2);
     },
   };
 
@@ -124,10 +112,7 @@ const DEFAULT_CONFIG: ChatConfig = {
   disablePromptHint: false,
 
   modelConfig: {
-    model: "gpt-3.5-turbo",
-    temperature: 1,
-    max_tokens: 2000,
-    presence_penalty: 0,
+    model: "text-davinci-002-render-sha",
   },
 };
 
