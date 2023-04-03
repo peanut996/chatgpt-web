@@ -1,7 +1,5 @@
-import type { ChatResponse, ChatRequest } from "./api/openai/typing";
 import { Message, ModelConfig, useAccessStore } from "./store";
 import Locale from "./locales";
-import { showToast } from "./components/ui-lib";
 import qs from "qs";
 
 if (!Array.prototype.at) {
@@ -9,29 +7,6 @@ if (!Array.prototype.at) {
 }
 
 const TIME_OUT_MS = 300000;
-
-const makeRequestParam = (
-  messages: Message[],
-  options?: {
-    filterBot?: boolean;
-    stream?: boolean;
-  },
-): ChatRequest => {
-  let sendMessages = messages.map((v) => ({
-    role: v.role,
-    content: v.content,
-  }));
-
-  if (options?.filterBot) {
-    sendMessages = sendMessages.filter((m) => m.role !== "assistant");
-  }
-
-  return {
-    model: "gpt-3.5-turbo",
-    messages: sendMessages,
-    stream: options?.stream,
-  };
-};
 
 function getHeaders() {
   const accessStore = useAccessStore.getState();
@@ -46,71 +21,6 @@ function getHeaders() {
   }
 
   return headers;
-}
-
-export function requestOpenaiClient(path: string) {
-  return (body: any, method = "POST") =>
-    fetch("/api/openai", {
-      method,
-      headers: {
-        "Content-Type": "application/json",
-        "Cache-Control": "no-cache",
-        path,
-        ...getHeaders(),
-      },
-      body: body && JSON.stringify(body),
-    });
-}
-
-export async function requestChat(messages: Message[]) {
-  const req: ChatRequest = makeRequestParam(messages, { filterBot: true });
-
-  const res = await requestOpenaiClient("v1/chat/completions")(req);
-
-  try {
-    const response = (await res.json()) as ChatResponse;
-    return response;
-  } catch (error) {
-    console.error("[Request Chat] ", error, res.body);
-  }
-}
-
-export async function requestUsage() {
-  const formatDate = (d: Date) =>
-    `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, "0")}-${d
-      .getDate()
-      .toString()
-      .padStart(2, "0")}`;
-  const ONE_DAY = 24 * 60 * 60 * 1000;
-  const now = new Date(Date.now() + ONE_DAY);
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  const startDate = formatDate(startOfMonth);
-  const endDate = formatDate(now);
-  const res = await requestOpenaiClient(
-    `dashboard/billing/usage?start_date=${startDate}&end_date=${endDate}`,
-  )(null, "GET");
-
-  try {
-    const response = (await res.json()) as {
-      total_usage: number;
-      error?: {
-        type: string;
-        message: string;
-      };
-    };
-
-    if (response.error && response.error.type) {
-      showToast(response.error.message);
-      return;
-    }
-
-    if (response.total_usage) {
-      response.total_usage = Math.round(response.total_usage) / 100;
-    }
-    return response.total_usage;
-  } catch (error) {
-    console.error("[Request usage] ", error, res.body);
-  }
 }
 
 export async function requestChatStream(
@@ -186,21 +96,6 @@ export async function requestChatStream(
     options?.onError(err as Error);
   }
 }
-
-export async function requestWithPrompt(messages: Message[], prompt: string) {
-  messages = messages.concat([
-    {
-      role: "user",
-      content: prompt,
-      date: new Date().toLocaleString(),
-    },
-  ]);
-
-  const res = await requestChat(messages);
-
-  return res?.choices?.at(0)?.message?.content ?? "";
-}
-
 // To store message streaming controller
 export const ControllerPool = {
   controllers: {} as Record<string, AbortController>,

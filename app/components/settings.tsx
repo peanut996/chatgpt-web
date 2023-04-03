@@ -17,14 +17,10 @@ import {
   Theme,
   useAccessStore,
   useChatStore,
-  useUpdateStore,
 } from "../store";
 import { Avatar } from "./chat";
 
 import Locale, { AllLangs, changeLang, getLang } from "../locales";
-import { getCurrentVersion } from "../utils";
-import { SearchService, usePromptStore } from "../store/prompt";
-import { requestUsage } from "../requests";
 
 function SettingItem(props: {
   title: string;
@@ -46,59 +42,23 @@ function SettingItem(props: {
 
 export function Settings(props: { closeSettings: () => void }) {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [config, updateConfig, resetConfig, clearAllData, clearSessions] =
-    useChatStore((state) => [
+  const [config, updateConfig, resetConfig, clearSessions] = useChatStore(
+    (state) => [
       state.config,
       state.updateConfig,
       state.resetConfig,
       state.clearAllData,
       state.clearSessions,
-    ]);
+    ],
+  );
 
-  const updateStore = useUpdateStore();
-  const [checkingUpdate, setCheckingUpdate] = useState(false);
-  const currentId = getCurrentVersion();
-  const remoteId = updateStore.remoteId;
-  const hasNewVersion = currentId !== remoteId;
-
-  function checkUpdate(force = false) {
-    setCheckingUpdate(true);
-    updateStore.getLatestCommitId(force).then(() => {
-      setCheckingUpdate(false);
-    });
-  }
-
-  const [usage, setUsage] = useState<{
-    used?: number;
-  }>();
-  const [loadingUsage, setLoadingUsage] = useState(false);
-  function checkUsage() {
-    setLoadingUsage(true);
-    requestUsage()
-      .then((res) =>
-        setUsage({
-          used: res,
-        }),
-      )
-      .finally(() => {
-        setLoadingUsage(false);
-      });
-  }
-
-  useEffect(() => {
-    checkUpdate();
-    checkUsage();
-  }, []);
+  useEffect(() => {}, []);
 
   const accessStore = useAccessStore();
   const enabledAccessControl = useMemo(
     () => accessStore.enabledAccessControl(),
-    [],
+    [accessStore],
   );
-
-  const promptStore = usePromptStore();
-  const builtinCount = SearchService.count.builtin;
-  const customCount = promptStore.prompts.size ?? 0;
 
   return (
     <>
