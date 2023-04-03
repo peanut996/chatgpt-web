@@ -498,16 +498,7 @@ export function Chat(props: {
               onClick={props?.showSideBar}
             />
           </div>
-          <div className={styles["window-action-button"]}>
-            <IconButton
-              icon={<BrainIcon />}
-              bordered
-              title={Locale.Chat.Actions.CompressedHistory}
-              onClick={() => {
-                setShowPromptModal(true);
-              }}
-            />
-          </div>
+          <div className={styles["window-action-button"]}></div>
           <div className={styles["window-action-button"]}>
             <IconButton
               icon={<ExportIcon />}
