@@ -31,9 +31,14 @@ async function createStream(req: NextRequest) {
             return;
           }
           try {
-            const json: ChatGPTResponse = JSON.parse(data);
-            const text = json.message ? json.message : json.detail;
-            const queue = encoder.encode(text);
+            let queue: Uint8Array;
+            if (data === "[START]") {
+              queue = encoder.encode("");
+            } else {
+              const json: ChatGPTResponse = JSON.parse(data);
+              const text = json.message ? json.message : json.detail;
+              queue = encoder.encode(text);
+            }
             controller.enqueue(queue);
           } catch (e) {
             controller.error(e);
