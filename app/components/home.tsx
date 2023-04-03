@@ -115,7 +115,11 @@ export function ChatList() {
     <div className={styles["chat-list"]}>
       {sessions.map((item, i) => (
         <ChatItem
-          title={item.messages[item.messages.length - 1].content}
+          title={
+            item.messages[item.messages.length - 1].content
+              ? item.messages[item.messages.length - 1].content
+              : "Loading..."
+          }
           time={item.lastUpdate}
           count={item.messages.length}
           key={i}
