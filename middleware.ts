@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { ACCESS_CODES } from "./app/api/access";
 import md5 from "spark-md5";
 
+
+const accessCodeTip = "Please go settings page and fill your access code. " +
+    "You can donate to the bot to get your access code.\n\n" +
+    "🔮请前往设置页面并填写您的访问码, 成为bot捐赠用户方可获得访问码。\n\n" +
+    "🤖  https://bit.ly/3I3TSSo"
 export const config = {
   matcher: ["/api/openai", "/api/chat-stream"],
 };
@@ -19,7 +24,7 @@ export function middleware(req: NextRequest) {
       {
         error: true,
         needAccessCode: true,
-        msg: "Please go settings page and fill your access code.",
+        msg: accessCodeTip,
       },
       {
         status: 401,
