@@ -34,7 +34,9 @@ async function createStream(req: NextRequest) {
             let queue: Uint8Array;
             if (data === "[START]") {
               console.log(
-                `[Stream] received ack, start streaming, param: ${req.nextUrl.searchParams}`,
+                `[Stream] received ack, start streaming, param: ${getUrlParams(
+                  req.nextUrl.searchParams,
+                )}`,
               );
               queue = encoder.encode("");
             } else {
@@ -69,4 +71,13 @@ export async function GET(req: NextRequest) {
 
 export const config = {
   runtime: "edge",
+};
+
+const getUrlParams = (params: URLSearchParams): Record<string, string> => {
+  let paramsObject: Record<string, string> = {};
+
+  for (let p of params) {
+    paramsObject[decodeURIComponent(p[0])] = decodeURIComponent(p[1]);
+  }
+  return paramsObject;
 };
