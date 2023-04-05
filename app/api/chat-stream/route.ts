@@ -33,7 +33,9 @@ async function createStream(req: NextRequest) {
           try {
             let queue: Uint8Array;
             if (data === "[START]") {
-              console.log("[StreamParse] received [START] event");
+              console.log(
+                `[Stream] received ack, start streaming, param: ${req.nextUrl.searchParams}`,
+              );
               queue = encoder.encode("");
             } else {
               const json: ChatGPTResponse = JSON.parse(data);
