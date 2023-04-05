@@ -34,8 +34,8 @@ async function createStream(req: NextRequest) {
             let queue: Uint8Array;
             if (data === "[START]") {
               console.log(
-                `[Stream] received ack, start streaming, param: ${getUrlParams(
-                  req.nextUrl.searchParams,
+                `[Stream] received ack, start streaming, param: ${JSON.stringify(
+                  getUrlParams(req.nextUrl.searchParams),
                 )}`,
               );
               queue = encoder.encode("");
