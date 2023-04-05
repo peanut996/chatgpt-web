@@ -22,11 +22,17 @@ async function createStream(req: NextRequest) {
 
   const readableStream = new ReadableStream({
     async start(controller) {
+      let total = "";
+
       function onParse(event: any) {
         if (event.type === "event") {
           const data = event.data;
           // https://beta.openai.com/docs/api-reference/completions/create#completions/create-stream
           if (data === "[DONE]") {
+            console.log(
+              "[Stream] received done, stop streaming, total text: " + total,
+            );
+            total = "";
             controller.close();
             return;
           }
@@ -42,6 +48,7 @@ async function createStream(req: NextRequest) {
             } else {
               const json: ChatGPTResponse = JSON.parse(data);
               const text = json.message ? json.message : json.detail;
+              total += text;
               queue = encoder.encode(text);
             }
             controller.enqueue(queue);
