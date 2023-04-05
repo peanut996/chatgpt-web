@@ -48,7 +48,9 @@ async function createStream(req: NextRequest) {
             } else {
               const json: ChatGPTResponse = JSON.parse(data);
               const text = json.message ? json.message : json.detail;
-              total += text;
+              if (text) {
+                total += text;
+              }
               queue = encoder.encode(text);
             }
             controller.enqueue(queue);
