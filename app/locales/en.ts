@@ -5,7 +5,9 @@ const en: LocaleType = {
   WIP: "WIP...",
   Error: {
     Unauthorized:
-      "🔮 Unauthorized access, please enter access code in settings page. You can donate to the bot to get your access code.\n\n🤖 https://bit.ly/3I3TSSo",
+      "🔮 Unauthorized access, please enter access code in settings page. You can donate to the bot to get your access code.\n\n" +
+      "🤖 Bot https://bit.ly/3I3TSSo \n\n" +
+      '📮 To purchase an access code, please contact us at <a href="mailto:849421294godw@gmail.com">email</a>.',
   },
   ChatItem: {
     ChatItemCount: (count: number) => `${count} messages`,
