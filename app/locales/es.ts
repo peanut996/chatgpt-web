@@ -4,6 +4,7 @@ import type { LocaleType } from "./index";
 const es: LocaleType = {
   WIP: "En construcción...",
   Error: {
+    UnauthorizedFunc: null,
     Unauthorized:
       "Acceso no autorizado, por favor ingrese el código de acceso en la página de configuración.",
   },

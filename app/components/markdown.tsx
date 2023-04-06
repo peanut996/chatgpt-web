@@ -5,7 +5,6 @@ import RemarkBreaks from "remark-breaks";
 import RehypeKatex from "rehype-katex";
 import RemarkGfm from "remark-gfm";
 import RehypeHighlight from "rehype-highlight";
-import rehypeRaw from "rehype-raw";
 import { useRef, useState, RefObject, useEffect } from "react";
 import { copyToClipboard } from "../utils";
 
@@ -56,7 +55,6 @@ export function Markdown(props: { content: string }) {
     <ReactMarkdown
       remarkPlugins={[RemarkMath, RemarkGfm, RemarkBreaks]}
       rehypePlugins={[
-        rehypeRaw,
         RehypeKatex,
         [
           RehypeHighlight,

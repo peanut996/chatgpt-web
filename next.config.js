@@ -11,11 +11,14 @@ const nextConfig = {
     }); // 针对 SVG 的处理规则
 
     return config;
-  }
+  },
+  env: {
+    EMAIL: process.env.EMAIL,
+  },
 };
 
 if (process.env.DOCKER) {
-  nextConfig.output = 'standalone'
+  nextConfig.output = "standalone";
 }
 
 module.exports = nextConfig;

@@ -1,13 +1,19 @@
 import { SubmitKey } from "../store/app";
 import type { LocaleType } from "./index";
+import { UnauthorizedFuncType } from "@/app/locales/cn";
 
 const en: LocaleType = {
   WIP: "WIP...",
   Error: {
     Unauthorized:
-      "🔮 Unauthorized access, please enter access code in settings page. You can donate to the bot to get your access code.\n\n" +
-      "🤖 Bot https://bit.ly/3I3TSSo \n\n" +
-      '📮 To purchase an access code, please contact us at <a href="mailto:849421294godw@gmail.com">email</a>.',
+      "🔮 Please go to the settings page and enter your access code.\n\n" +
+      "Ways to obtain access code:\n\n" +
+      "+ 🤖 [Bot](https://bit.ly/3I3TSSo) \n\n",
+    UnauthorizedFunc: ((email: string) =>
+      "🔮 Please go to the settings page and enter your access code.\n\n" +
+      "Ways to obtain access code:\n\n" +
+      "+ 🤖 [Bot](https://bit.ly/3I3TSSo)\n" +
+      `+ 📮 [Email](mailto:${email})`) as UnauthorizedFuncType,
   },
   ChatItem: {
     ChatItemCount: (count: number) => `${count} messages`,

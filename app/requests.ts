@@ -8,6 +8,8 @@ if (!Array.prototype.at) {
 
 const TIME_OUT_MS = 300000;
 
+const EMAIL = process.env.EMAIL;
+
 function getHeaders() {
   const accessStore = useAccessStore.getState();
   let headers: Record<string, string> = {};
@@ -85,7 +87,11 @@ export async function requestChatStream(
       finish();
     } else if (res.status === 401) {
       console.error("Anauthorized");
-      responseText = Locale.Error.Unauthorized;
+      if (Locale.Error.UnauthorizedFunc && EMAIL) {
+        responseText = Locale.Error.UnauthorizedFunc(EMAIL);
+      } else {
+        responseText = Locale.Error.Unauthorized;
+      }
       finish();
     } else {
       console.error("Stream Error", res.body);

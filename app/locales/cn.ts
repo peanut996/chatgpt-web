@@ -1,12 +1,19 @@
 import { SubmitKey } from "../store/app";
 
+export type UnauthorizedFuncType = ((email: string) => string) | null;
+
 const cn = {
   WIP: "该功能仍在开发中……",
   Error: {
     Unauthorized:
-      "🔮 请前往设置页面并填写您的访问码, 成为bot捐赠用户方可获得访问码。 \n\n" +
-      "🤖 Bot https://bit.ly/3I3TSSo \n\n" +
-      '📮 购买访问码请联系：<a href="mailto:849421294godw@gmail.com">邮箱</a> ',
+      "🔮 请前往设置页面并填写您的访问码。\n\n" +
+      "访问码获取方式：\n\n" +
+      "+ 🤖 [Bot](https://bit.ly/3I3TSSo) \n\n",
+    UnauthorizedFunc: ((email: string) =>
+      "🔮 请前往设置页面并填写您的访问码。\n\n" +
+      "访问码获取方式：\n\n" +
+      "+ 🤖 [Bot](https://bit.ly/3I3TSSo) \n" +
+      `+ 📮 [邮箱](mailto:${email})`) as UnauthorizedFuncType,
   },
   ChatItem: {
     ChatItemCount: (count: number) => `${count} 条对话`,
