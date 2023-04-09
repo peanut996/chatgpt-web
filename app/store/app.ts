@@ -338,6 +338,7 @@ export const useChatStore = create<ChatStore>()(
           },
           onController(controller) {
             // collect controller for stop/retry
+            let messageIndex = get().currentSession().messages.length;
             ControllerPool.addController(
               sessionIndex,
               messageIndex,
