@@ -56,15 +56,18 @@ const ENABLE_GPT4 = true;
 
 export const ALL_MODELS = [
   {
-    name: "text-davinci-002-render-sha",
+    name: "Default (GPT-3.5)",
+    model: "text-davinci-002-render-sha",
     available: true,
   },
   {
-    name: "text-davinci-002-render-paid",
+    name: "Legacy (GPT-3.5)",
+    model: "text-davinci-002-render-paid",
     available: true,
   },
   {
-    name: "gpt-4",
+    name: "GPT-4",
+    model: "gpt-4",
     available: ENABLE_GPT4,
   },
 ];
