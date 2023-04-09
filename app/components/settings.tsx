@@ -26,10 +26,11 @@ function SettingItem(props: {
   title: string;
   subTitle?: string;
   children: JSX.Element;
+  onClick?: () => void;
 }) {
   return (
     <ListItem>
-      <div className={styles["settings-title"]}>
+      <div onClick={props.onClick} className={styles["settings-title"]}>
         <div>{props.title}</div>
         {props.subTitle && (
           <div className={styles["settings-sub-title"]}>{props.subTitle}</div>
@@ -51,6 +52,22 @@ export function Settings(props: { closeSettings: () => void }) {
       state.clearSessions,
     ],
   );
+  const [clickCount, setClickCount] = useState(0);
+  const [models, setModels] = useState(ALL_MODELS);
+
+  const handleClick = () => {
+    setClickCount(clickCount + 1);
+    if (clickCount + 1 === 5) {
+      // 触发彩蛋
+      const allowGPT4Models = models.map((m) => {
+        if (m.model === "gpt-4") {
+          m.available = true;
+        }
+        return m;
+      });
+      setModels(allowGPT4Models);
+    }
+  };
 
   useEffect(() => {}, []);
 
@@ -260,7 +277,7 @@ export function Settings(props: { closeSettings: () => void }) {
         </List>
 
         <List>
-          <SettingItem title={Locale.Settings.Model}>
+          <SettingItem title={Locale.Settings.Model} onClick={handleClick}>
             <select
               value={config.modelConfig.model}
               onChange={(e) => {
@@ -270,7 +287,7 @@ export function Settings(props: { closeSettings: () => void }) {
                 );
               }}
             >
-              {ALL_MODELS.map((v) => (
+              {models.map((v) => (
                 <option value={v.model} key={v.name} disabled={!v.available}>
                   {v.name}
                 </option>
