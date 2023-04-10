@@ -59,13 +59,14 @@ export function Settings(props: { closeSettings: () => void }) {
     setClickCount(clickCount + 1);
     if (clickCount + 1 === 5) {
       // 触发彩蛋
-      const allowGPT4Models = models.map((m) => {
-        if (m.model === "gpt-4") {
-          m.available = true;
-        }
-        return m;
-      });
-      setModels(allowGPT4Models);
+      setModels([
+        ...ALL_MODELS,
+        {
+          name: "GPT-4",
+          model: "gpt-4",
+          available: true,
+        },
+      ]);
     }
   };
 
