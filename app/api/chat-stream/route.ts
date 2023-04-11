@@ -86,7 +86,7 @@ const getUrlParams = (params: URLSearchParams): Record<string, string> => {
   let paramsObject: Record<string, string> = {};
 
   for (let p of params) {
-    paramsObject[decodeURIComponent(p[0])] = decodeURIComponent(p[1]);
+    paramsObject[decodeURIComponent(p[0])] = p[1];
   }
   return paramsObject;
 };
