@@ -30,7 +30,8 @@ async function createStream(req: NextRequest) {
           // https://beta.openai.com/docs/api-reference/completions/create#completions/create-stream
           if (data === "[DONE]") {
             console.log(
-              "[Stream] received done, stop streaming, total text: " + total,
+              "[Stream] received done event, stop streaming, total text: " +
+                total,
             );
             total = "";
             controller.close();
@@ -40,10 +41,13 @@ async function createStream(req: NextRequest) {
             let queue: Uint8Array;
             if (data === "[START]") {
               console.log(
-                `[Stream] received ack, start streaming, param: ${JSON.stringify(
+                `[Stream] received start event, start streaming, param: ${JSON.stringify(
                   getUrlParams(req.nextUrl.searchParams),
                 )}`,
               );
+              queue = encoder.encode("");
+            } else if (data === "[KEEP]") {
+              console.log(`[Stream] received keep event, keep streaming`);
               queue = encoder.encode("");
             } else {
               const json: ChatGPTResponse = JSON.parse(data);
