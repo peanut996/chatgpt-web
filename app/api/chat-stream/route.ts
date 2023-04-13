@@ -1,7 +1,6 @@
 import { createParser } from "eventsource-parser";
 import { NextRequest } from "next/server";
 import { FLAG } from "@/app/constant";
-import { ALL_MODELS } from "@/app/store";
 
 const SERVER_URL = process.env.SERVER_URL
   ? process.env.SERVER_URL
@@ -21,7 +20,7 @@ const getHeaders = () => {
 export const ask = async (param: string): Promise<Response> => {
   if (DOWNGRADE_MODE) {
     let obj = JSON.parse(param);
-    obj["model"] = ALL_MODELS[0].model;
+    obj["model"] = "text-davinci-002-render-sha";
     param = JSON.stringify(obj);
   }
   const url = `${SERVER_URL}/chat-stream`;
