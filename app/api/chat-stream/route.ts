@@ -1,10 +1,13 @@
 import { createParser } from "eventsource-parser";
 import { NextRequest } from "next/server";
 import { FLAG } from "@/app/constant";
+import { ALL_MODELS } from "@/app/store";
 
 const SERVER_URL = process.env.SERVER_URL
   ? process.env.SERVER_URL
   : "http://localhost:5000";
+
+const DOWNGRADE_MODE = process.env.DOWNGRADE;
 
 const getHeaders = () => {
   const clientId = process.env.CLIENT_ID || "client_id";
@@ -16,6 +19,11 @@ const getHeaders = () => {
 };
 
 export const ask = async (param: string): Promise<Response> => {
+  if (DOWNGRADE_MODE) {
+    let obj = JSON.parse(param);
+    obj["model"] = ALL_MODELS[0].model;
+    param = JSON.stringify(obj);
+  }
   const url = `${SERVER_URL}/chat-stream`;
   return fetch(url, {
     headers: {
