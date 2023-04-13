@@ -76,7 +76,7 @@ export async function requestChatStream(
         const resTimeoutId = setTimeout(() => finish(), TIME_OUT_MS);
         const content = await reader?.read();
         clearTimeout(resTimeoutId);
-        const text = decoder.decode(content?.value, { stream: !content?.done });
+        const text = decoder.decode(content?.value, { stream: true });
         if (text === START_FLAG) {
           responseText += "\u200b";
         } else if (text === KEEP_FLAG) {
