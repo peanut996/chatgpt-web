@@ -7,11 +7,13 @@ const SERVER_URL = process.env.SERVER_URL
   : "http://localhost:5000";
 
 export const ask = async (req: NextRequest): Promise<Response> => {
-  const params = req.nextUrl.searchParams;
-  const queryString = params.toString();
-  const url = `${SERVER_URL}/chat-stream?${queryString}`;
+  const url = `${SERVER_URL}/chat-stream`;
   return fetch(url, {
-    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    method: "POST",
+    body: req.body,
   });
 };
 
@@ -41,11 +43,7 @@ async function createStream(req: NextRequest) {
           try {
             let queue: Uint8Array;
             if (data === "[START]") {
-              console.log(
-                `[Stream] received start event, start streaming, param: ${JSON.stringify(
-                  getUrlParams(req.nextUrl.searchParams),
-                )}`,
-              );
+              console.log(`[Stream] received start event, start streaming`);
               queue = encoder.encode(FLAG);
             } else if (data === "[KEEP]") {
               console.log(`[Stream] received keep event, keep streaming`);
@@ -74,7 +72,7 @@ async function createStream(req: NextRequest) {
   return readableStream;
 }
 
-export async function GET(req: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
     const stream: ReadableStream = await createStream(req);
     return new Response(stream);
@@ -85,13 +83,4 @@ export async function GET(req: NextRequest) {
 
 export const config = {
   runtime: "edge",
-};
-
-const getUrlParams = (params: URLSearchParams): Record<string, string> => {
-  let paramsObject: Record<string, string> = {};
-
-  for (let p of params) {
-    paramsObject[decodeURIComponent(p[0])] = p[1];
-  }
-  return paramsObject;
 };

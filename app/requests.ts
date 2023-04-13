@@ -47,12 +47,12 @@ export async function requestChatStream(
       model: model,
       user_id: options?.userId,
     };
-    const queryString = qs.stringify(params);
-    const res = await fetch(`/api/chat-stream?${queryString}`, {
-      method: "GET",
+    const res = await fetch(`/api/chat-stream`, {
+      method: "POST",
       headers: {
         ...getHeaders(),
       },
+      body: JSON.stringify(params),
       signal: controller.signal,
     });
     clearTimeout(reqTimeoutId);
