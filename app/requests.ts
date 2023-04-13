@@ -80,8 +80,6 @@ export async function requestChatStream(
 
         if (text !== FLAG) {
           responseText += text;
-        } else {
-          console.log("receive flag");
         }
 
         const done = !content || content.done;
