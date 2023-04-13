@@ -1,6 +1,7 @@
 import { Message, ModelConfig, useAccessStore } from "./store";
 import Locale from "./locales";
 import qs from "qs";
+import { FLAG } from "@/app/constant";
 
 if (!Array.prototype.at) {
   require("array.prototype.at/auto");
@@ -76,7 +77,12 @@ export async function requestChatStream(
         const content = await reader?.read();
         clearTimeout(resTimeoutId);
         const text = decoder.decode(content?.value, { stream: true });
-        responseText += text;
+
+        if (text !== FLAG) {
+          responseText += text;
+        } else {
+          console.log("receive flag");
+        }
 
         const done = !content || content.done;
         options?.onMessage(responseText, false);
