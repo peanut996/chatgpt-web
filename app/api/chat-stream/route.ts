@@ -1,5 +1,6 @@
 import { createParser } from "eventsource-parser";
 import { NextRequest } from "next/server";
+import { KEEP_FLAG, START_FLAG } from "@/app/constant";
 
 const SERVER_URL = process.env.SERVER_URL
   ? process.env.SERVER_URL
@@ -45,10 +46,10 @@ async function createStream(req: NextRequest) {
                   getUrlParams(req.nextUrl.searchParams),
                 )}`,
               );
-              queue = encoder.encode("");
+              queue = encoder.encode(START_FLAG);
             } else if (data === "[KEEP]") {
               console.log(`[Stream] received keep event, keep streaming`);
-              queue = encoder.encode("");
+              queue = encoder.encode(KEEP_FLAG);
             } else {
               const json: ChatGPTResponse = JSON.parse(data);
               const text = json.message ? json.message : json.detail;

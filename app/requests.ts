@@ -1,6 +1,7 @@
 import { Message, ModelConfig, useAccessStore } from "./store";
 import Locale from "./locales";
 import qs from "qs";
+import { KEEP_FLAG, START_FLAG } from "@/app/constant";
 
 if (!Array.prototype.at) {
   require("array.prototype.at/auto");
@@ -76,7 +77,13 @@ export async function requestChatStream(
         const content = await reader?.read();
         clearTimeout(resTimeoutId);
         const text = decoder.decode(content?.value, { stream: !content?.done });
-        responseText += text;
+        if (text === START_FLAG) {
+          responseText += "\u200b";
+        } else if (text === KEEP_FLAG) {
+          responseText += ".";
+        } else if (text) {
+          responseText += text;
+        }
         const done = !content || content.done;
         options?.onMessage(responseText, false);
 
