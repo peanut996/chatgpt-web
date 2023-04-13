@@ -6,23 +6,22 @@ const SERVER_URL = process.env.SERVER_URL
   ? process.env.SERVER_URL
   : "http://localhost:5000";
 
-export const ask = async (req: NextRequest): Promise<Response> => {
-  console.log(req.body);
+export const ask = async (param: string): Promise<Response> => {
   const url = `${SERVER_URL}/chat-stream`;
   return fetch(url, {
     headers: {
       "Content-Type": "application/json",
     },
     method: "POST",
-    body: req.body,
+    body: param,
   });
 };
 
 async function createStream(req: NextRequest) {
   const encoder = new TextEncoder();
   const decoder = new TextDecoder();
-
-  const res = await ask(req);
+  const param = await concatStringStream(req.body!);
+  const res = await ask(param);
 
   const readableStream = new ReadableStream({
     async start(controller) {
@@ -34,8 +33,7 @@ async function createStream(req: NextRequest) {
           // https://beta.openai.com/docs/api-reference/completions/create#completions/create-stream
           if (data === "[DONE]") {
             console.log(
-              "[Stream] received done event, stop streaming, total text: " +
-                total,
+              `[Stream] received done event, stop streaming, , param: ${param},  answer: ${total}`,
             );
             total = "";
             controller.close();
@@ -44,10 +42,14 @@ async function createStream(req: NextRequest) {
           try {
             let queue: Uint8Array;
             if (data === "[START]") {
-              console.log(`[Stream] received start event, start streaming`);
+              console.log(
+                `[Stream] received start event, start streaming, param: ${param}`,
+              );
               queue = encoder.encode(FLAG);
             } else if (data === "[KEEP]") {
-              console.log(`[Stream] received keep event, keep streaming`);
+              console.log(
+                `[Stream] received keep event, keep streaming, param: ${param}`,
+              );
               queue = encoder.encode(FLAG);
             } else {
               const json: ChatGPTResponse = JSON.parse(data);
@@ -84,4 +86,17 @@ export async function POST(req: NextRequest) {
 
 export const config = {
   runtime: "edge",
+};
+
+const concatStringStream = async (stream: ReadableStream): Promise<string> => {
+  let result = "";
+  const decoder = new TextDecoder();
+  const reader = stream.getReader();
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) {
+      return result;
+    }
+    result += decoder.decode(value, { stream: true });
+  }
 };
