@@ -6,11 +6,21 @@ const SERVER_URL = process.env.SERVER_URL
   ? process.env.SERVER_URL
   : "http://localhost:5000";
 
+const getHeaders = () => {
+  const clientId = process.env.CLIENT_ID || "client_id";
+  const clientSecret = process.env.CLIENT_SECRET || "client_secret";
+  return {
+    "CF-Access-Client-Id": clientId,
+    "CF-Access-Client-Secret": clientSecret,
+  };
+};
+
 export const ask = async (param: string): Promise<Response> => {
   const url = `${SERVER_URL}/chat-stream`;
   return fetch(url, {
     headers: {
       "Content-Type": "application/json",
+      ...getHeaders(),
     },
     method: "POST",
     body: param,
