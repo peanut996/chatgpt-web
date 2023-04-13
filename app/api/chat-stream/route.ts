@@ -13,7 +13,7 @@ export const ask = async (req: NextRequest): Promise<Response> => {
       "Content-Type": "application/json",
     },
     method: "POST",
-    body: req.clone().body,
+    body: req.body,
   });
 };
 
@@ -23,7 +23,6 @@ async function createStream(req: NextRequest) {
 
   const res = await ask(req);
 
-  const param = await req.json();
   const readableStream = new ReadableStream({
     async start(controller) {
       let total = "";
@@ -44,14 +43,10 @@ async function createStream(req: NextRequest) {
           try {
             let queue: Uint8Array;
             if (data === "[START]") {
-              console.log(
-                `[Stream] received start event, start streaming, param: ${param}`,
-              );
+              console.log(`[Stream] received start event, start streaming`);
               queue = encoder.encode(FLAG);
             } else if (data === "[KEEP]") {
-              console.log(
-                `[Stream] received keep event, keep streaming, param: ${param}`,
-              );
+              console.log(`[Stream] received keep event, keep streaming`);
               queue = encoder.encode(FLAG);
             } else {
               const json: ChatGPTResponse = JSON.parse(data);
