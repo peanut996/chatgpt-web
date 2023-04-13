@@ -52,6 +52,7 @@ export async function requestChatStream(
       method: "POST",
       headers: {
         ...getHeaders(),
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(params),
       signal: controller.signal,

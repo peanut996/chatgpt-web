@@ -7,6 +7,7 @@ const SERVER_URL = process.env.SERVER_URL
   : "http://localhost:5000";
 
 export const ask = async (req: NextRequest): Promise<Response> => {
+  console.log(req.body);
   const url = `${SERVER_URL}/chat-stream`;
   return fetch(url, {
     headers: {
