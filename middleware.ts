@@ -34,19 +34,6 @@ export function middleware(req: NextRequest) {
     console.log("[Auth] got access code:", accessCode);
     const isValidAccessCode = validateAccessCode(accessCode);
     console.log("[Auth] is valid access code: ", isValidAccessCode);
-    if (!isValidAccessCode) {
-        return NextResponse.json(
-            {
-                error: true,
-                needAccessCode: true,
-                msg: accessCodeTip,
-            },
-            {
-                status: 401,
-            },
-        );
-    }
-
     return NextResponse.next({
         request: {
             headers: req.headers,
