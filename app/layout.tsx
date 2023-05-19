@@ -29,7 +29,8 @@ export const metadata = {
 function Meta() {
   const metas = {
     version: COMMIT_ID ?? "unknown",
-    access: false,
+    access:
+      ACCESS_CODES.size > 0 || IS_IN_DOCKER || SALT ? "enabled" : "disabled",
   };
 
   return (
