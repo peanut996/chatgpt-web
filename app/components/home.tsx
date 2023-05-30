@@ -1,6 +1,12 @@
 "use client";
 
-import { useState, useRef, useEffect, useLayoutEffect } from "react";
+import {
+  useState,
+  useRef,
+  useEffect,
+  useLayoutEffect,
+  SetStateAction,
+} from "react";
 
 import { IconButton } from "./button";
 import styles from "./home.module.scss";
@@ -20,6 +26,7 @@ import {
   useChatStore,
   ChatSession,
   BOT_HELLO,
+  ALL_MODELS,
 } from "../store";
 import {
   copyToClipboard,
@@ -92,6 +99,7 @@ export function Home() {
   // setting
   const [openSettings, setOpenSettings] = useState(false);
   const config = useChatStore((state) => state.config);
+  const [models, setModels] = useState(ALL_MODELS);
 
   useSwitchTheme();
 
@@ -175,6 +183,10 @@ export function Home() {
       <div className={styles["window-content"]}>
         {openSettings ? (
           <Settings
+            models={models}
+            setModels={(value) => {
+              setModels(value);
+            }}
             closeSettings={() => {
               setOpenSettings(false);
               setShowSideBar(true);

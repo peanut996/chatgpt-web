@@ -41,7 +41,11 @@ function SettingItem(props: {
   );
 }
 
-export function Settings(props: { closeSettings: () => void }) {
+export function Settings(props: {
+  models: Record<string, any>[];
+  setModels: (val: any) => void;
+  closeSettings: () => void;
+}) {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [config, updateConfig, resetConfig, clearSessions] = useChatStore(
     (state) => [
@@ -53,7 +57,7 @@ export function Settings(props: { closeSettings: () => void }) {
     ],
   );
   const [clickCount, setClickCount] = useState(0);
-  const [models, setModels] = useState(ALL_MODELS);
+  const { models, setModels } = props;
 
   const handleClick = () => {
     setClickCount(clickCount + 1);
