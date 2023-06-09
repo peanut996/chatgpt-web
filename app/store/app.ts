@@ -60,11 +60,6 @@ export const ALL_MODELS = [
     model: "text-davinci-002-render-sha",
     available: true,
   },
-  {
-    name: "GPT-4",
-    model: "gpt-4",
-    available: true,
-  },
 ];
 
 export function isValidModel(name: string) {
