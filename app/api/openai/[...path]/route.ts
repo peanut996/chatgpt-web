@@ -1,6 +1,6 @@
 import { type OpenAIListModelResponse } from "@/app/client/platforms/openai";
 import { getServerSideConfig } from "@/app/config/server";
-import { OpenaiPath } from "@/app/constant";
+import { DEFAULT_MODELS, OpenaiPath } from "@/app/constant";
 import { prettyObject } from "@/app/utils/format";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "../../auth";
@@ -25,6 +25,7 @@ async function handle(
   { params }: { params: { path: string[] } },
 ) {
   console.log("[OpenAI Route] params ", params);
+  console.log("[OpenAI Route] body ", await req.clone().text());
 
   if (req.method === "OPTIONS") {
     return NextResponse.json({ body: "OK" }, { status: 200 });
@@ -53,18 +54,31 @@ async function handle(
   }
 
   try {
-    const response = await requestOpenai(req);
-
     // list models
-    if (subpath === OpenaiPath.ListModelPath && response.status === 200) {
-      const resJson = (await response.json()) as OpenAIListModelResponse;
-      const availableModels = getModels(resJson);
-      return NextResponse.json(availableModels, {
-        status: response.status,
+    if (subpath === OpenaiPath.ListModelPath) {
+      return NextResponse.json(DEFAULT_MODELS, {
+        status: 200,
       });
     }
 
-    return response;
+    const res = await requestOpenai(req);
+    if (res.status === 200) {
+      return res;
+    }
+    const body = await res.clone().text();
+    console.error(`[OpenAI Route] request backend failed, err: ${body}`);
+    return NextResponse.json(
+      {
+        code: res.status,
+        error:
+          res.status === 401
+            ? "CloudFlare Access Error"
+            : "Server Internal Error",
+      },
+      {
+        status: 500,
+      },
+    );
   } catch (e) {
     console.error("[OpenAI] ", e);
     return NextResponse.json(prettyObject(e));

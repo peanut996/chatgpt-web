@@ -63,6 +63,7 @@ export const OpenaiPath = {
   UsagePath: "dashboard/billing/usage",
   SubsPath: "dashboard/billing/subscription",
   ListModelPath: "v1/models",
+  ChatGPTPath: "chat-stream",
 };
 
 export const DEFAULT_INPUT_TEMPLATE = `{{input}}`; // input / time / model / lang
@@ -76,7 +77,8 @@ export const SUMMARIZE_MODEL = "gpt-3.5-turbo";
 
 export const DEFAULT_MODELS = [
   {
-    name: "gpt-4",
+    name: "GPT-3.5",
+    value: "text-davinci-002-render-sha",
     available: true,
   },
 ] as const;

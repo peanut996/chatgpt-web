@@ -6,6 +6,15 @@ const PROTOCOL = process.env.PROTOCOL || DEFAULT_PROTOCOL;
 const BASE_URL = process.env.BASE_URL || OPENAI_URL;
 const DISABLE_GPT4 = !!process.env.DISABLE_GPT4;
 
+const getCFHeaders = () => {
+  const clientId = process.env.CLIENT_ID || "client_id";
+  const clientSecret = process.env.CLIENT_SECRET || "client_secret";
+  return {
+    "CF-Access-Client-Id": clientId,
+    "CF-Access-Client-Secret": clientSecret,
+  };
+};
+
 export async function requestOpenai(req: NextRequest) {
   const controller = new AbortController();
   const authValue = req.headers.get("Authorization") ?? "";
@@ -47,6 +56,7 @@ export async function requestOpenai(req: NextRequest) {
       ...(process.env.OPENAI_ORG_ID && {
         "OpenAI-Organization": process.env.OPENAI_ORG_ID,
       }),
+      ...getCFHeaders(),
     },
     method: req.method,
     body: req.body,
@@ -56,30 +66,6 @@ export async function requestOpenai(req: NextRequest) {
     duplex: "half",
     signal: controller.signal,
   };
-
-  // #1815 try to refuse gpt4 request
-  if (DISABLE_GPT4 && req.body) {
-    try {
-      const clonedBody = await req.text();
-      fetchOptions.body = clonedBody;
-
-      const jsonBody = JSON.parse(clonedBody);
-
-      if ((jsonBody?.model ?? "").includes("gpt-4")) {
-        return NextResponse.json(
-          {
-            error: true,
-            message: "you are not allowed to use gpt-4 model",
-          },
-          {
-            status: 403,
-          },
-        );
-      }
-    } catch (e) {
-      console.error("[OpenAI] gpt4 filter", e);
-    }
-  }
 
   try {
     const res = await fetch(fetchUrl, fetchOptions);
@@ -93,7 +79,6 @@ export async function requestOpenai(req: NextRequest) {
     return new Response(res.body, {
       status: res.status,
       statusText: res.statusText,
-      headers: newHeaders,
     });
   } finally {
     clearTimeout(timeoutId);
