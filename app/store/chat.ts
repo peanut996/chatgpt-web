@@ -350,12 +350,11 @@ export const useChatStore = createPersistStore(
           onError(error) {
             const isAborted = error.message.includes("aborted");
             botMessage.content +=
-              "\n\n" +
+              "🌐 [Service Status](https://status.fuckopenai.world)\n\n" +
               prettyObject({
                 error: true,
                 message: error.message,
-              }) +
-              "\n\n🌐 [Status](https://status.fuckopenai.world)";
+              });
             botMessage.streaming = false;
             userMessage.isError = !isAborted;
             botMessage.isError = !isAborted;
