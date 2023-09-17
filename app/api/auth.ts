@@ -3,6 +3,8 @@ import { getServerSideConfig } from "../config/server";
 import md5 from "spark-md5";
 import { ACCESS_CODE_PREFIX } from "../constant";
 
+const SALT = process.env.SALT;
+
 function getIP(req: NextRequest) {
   let ip = req.ip ?? req.headers.get("x-real-ip");
   const forwardedFor = req.headers.get("x-forwarded-for");
@@ -24,6 +26,26 @@ function parseApiKey(bearToken: string) {
   };
 }
 
+const validateAccessCode = (token: string | null): boolean => {
+  if (!SALT) {
+    return true;
+  }
+  try {
+    if (!token) {
+      return false;
+    }
+    const [invitationCode, hashPart] = token.split("-");
+    const hash = md5
+      .hash(invitationCode + SALT)
+      .trim()
+      .substring(0, 10);
+    return hash === hashPart;
+  } catch (e) {
+    console.error("[Auth] validate access code error:", e);
+    return false;
+  }
+};
+
 export function auth(req: NextRequest) {
   const authToken = req.headers.get("Authorization") ?? "";
 
@@ -33,30 +55,16 @@ export function auth(req: NextRequest) {
   const hashedCode = md5.hash(accessCode ?? "").trim();
 
   const serverConfig = getServerSideConfig();
-  console.log("[Auth] allowed hashed codes: ", [...serverConfig.codes]);
   console.log("[Auth] got access code:", accessCode);
   console.log("[Auth] hashed access code:", hashedCode);
   console.log("[User IP] ", getIP(req));
   console.log("[Time] ", new Date().toLocaleString());
 
-  if (serverConfig.needCode && !serverConfig.codes.has(hashedCode) && !token) {
+  if (serverConfig.needCode && !validateAccessCode(accessCode)) {
     return {
       error: true,
       msg: !accessCode ? "empty access code" : "wrong access code",
     };
-  }
-
-  // if user does not provide an api key, inject system api key
-  if (!token) {
-    const apiKey = serverConfig.apiKey;
-    if (apiKey) {
-      console.log("[Auth] use system api key");
-      req.headers.set("Authorization", `Bearer ${apiKey}`);
-    } else {
-      console.log("[Auth] admin did not provide an api key");
-    }
-  } else {
-    console.log("[Auth] use user api key");
   }
 
   return {
