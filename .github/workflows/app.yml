@@ -19,6 +19,15 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
+
+      - name: replace the env
+        uses: falnyr/replace-env-vars-action@master
+        env:
+          CHATGPT_ENDPOINT: ${{ secrets.CHATGPT_ENDPOINT }}
+          CHATGPT_VERSION: ${{ github.event.release.tag_name }}
+        with:
+          filename: ./src-tauri/tauri.conf.json
+
       - name: get version
         run: echo "PACKAGE_VERSION=$(node -p "require('./src-tauri/tauri.conf.json').package.version")" >> $GITHUB_ENV
       - name: create release
@@ -77,8 +86,6 @@ jobs:
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
-          TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
         with:
           releaseId: ${{ needs.create-release.outputs.release_id }}
 

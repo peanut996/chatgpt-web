@@ -1,15 +1,13 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/schema.json",
   "build": {
-    "beforeBuildCommand": "yarn export",
-    "beforeDevCommand": "yarn export:dev",
     "devPath": "http://localhost:3000",
-    "distDir": "../out",
+    "distDir": "CHATGPT_ENDPOINT",
     "withGlobalTauri": true
   },
   "package": {
     "productName": "ChatGPT",
-    "version": "2.9.6"
+    "version": "CHATGPT_VERSION"
   },
   "tauri": {
     "allowlist": {
@@ -49,7 +47,7 @@
     "bundle": {
       "active": true,
       "category": "DeveloperTool",
-      "copyright": "2023, Zhang Yifei All Rights Reserved.",
+      "copyright": "2023, peanut996 All Rights Reserved.",
       "deb": {
         "depends": []
       },
@@ -61,7 +59,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.yida.chatgpt.next.web",
+      "identifier": "cn.peanut996.chatgpt.next.web",
       "longDescription": "ChatGPT is a cross-platform ChatGPT client, including Web/Win/Linux/OSX/PWA.",
       "macOS": {
         "entitlements": null,
@@ -81,17 +79,6 @@
     },
     "security": {
       "csp": null
-    },
-    "updater": {
-      "active": true,
-      "endpoints": [
-        "https://github.com/Yidadaa/ChatGPT-Next-Web/releases/latest/download/latest.json"
-      ],
-      "dialog": false,
-      "windows": {
-        "installMode": "passive"
-      },
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IERFNDE4MENFM0Y1RTZBOTQKUldTVWFsNC96b0JCM3RqM2NmMnlFTmxIaStRaEJrTHNOU2VqRVlIV1hwVURoWUdVdEc1eDcxVEYK"
     },
     "windows": [
       {
