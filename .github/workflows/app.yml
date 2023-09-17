@@ -2,8 +2,13 @@ name: Release App
 
 on:
   workflow_dispatch:
-  release:
-    types: [published]
+    inputs:
+      version:
+        description: '请输入版本号'
+        required: true
+      endpoint:
+        description: '请输入接入点'
+        required: true
 
 jobs:
   create-release:
@@ -65,10 +70,12 @@ jobs:
       - name: replace the env
         uses: falnyr/replace-env-vars-action@master
         env:
-          CHATGPT_ENDPOINT: ${{ secrets.CHATGPT_ENDPOINT }}
-          CHATGPT_VERSION: ${{ github.event.release.tag_name }}
+          CHATGPT_ENDPOINT: ${{ github.event.inputs.endpoint }}
+          CHATGPT_VERSION: ${{ github.event.inputs.version }}
         with:
           filename: ./src-tauri/tauri.conf.json
+
+      - run: cat ./src-tauri/tauri.conf.json
 
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
