@@ -8,7 +8,8 @@ const cn = {
   Error: {
     Unauthorized: isApp
       ? "检测到无效 API Key，请前往[设置](/#/settings)页检查 API Key 是否配置正确。"
-      : "访问密码不正确或为空，请前往[登录](/#/auth)页输入正确的访问密码。",
+      : "访问密码不正确或为空，请前往[登录](/#/auth)页输入正确的访问密码。\n\n" +
+        "🔗 [访问码获取](https://notion.peanut996.cn/Q-A-f90c96b7343f415dbed8e7d5870f4a80) \n\n",
   },
   Auth: {
     Title: "需要密码",
