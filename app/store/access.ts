@@ -13,8 +13,8 @@ const DEFAULT_ACCESS_STATE = {
   token: "",
   accessCode: "",
   needCode: true,
-  hideUserApiKey: false,
-  hideBalanceQuery: false,
+  hideUserApiKey: true,
+  hideBalanceQuery: true,
   disableGPT4: false,
 
   openaiUrl: DEFAULT_OPENAI_URL,

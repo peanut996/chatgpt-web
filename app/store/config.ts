@@ -3,7 +3,7 @@ import { getClientConfig } from "../config/client";
 import { DEFAULT_INPUT_TEMPLATE, DEFAULT_MODELS, StoreKey } from "../constant";
 import { createPersistStore } from "../utils/store";
 
-export type ModelType = (typeof DEFAULT_MODELS)[number]["name"];
+export type ModelType = string;
 
 export enum SubmitKey {
   Enter = "Enter",

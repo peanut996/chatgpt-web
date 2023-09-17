@@ -11,6 +11,8 @@ export const RUNTIME_CONFIG_DOM = "danger-runtime-config";
 export const DEFAULT_CORS_HOST = "https://chatgpt2.nextweb.fun";
 export const DEFAULT_API_HOST = `${DEFAULT_CORS_HOST}/api/proxy`;
 
+export const PROFILE_URL = "https://github.com/peanut996";
+
 export enum Path {
   Home = "/",
   Chat = "/chat",

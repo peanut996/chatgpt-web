@@ -63,12 +63,8 @@ export class ChatGPTApi implements LLMApi {
     };
 
     const requestPayload = {
-      messages,
+      model: DEFAULT_MODELS[0].value,
       stream: options.config.stream,
-      temperature: modelConfig.temperature,
-      presence_penalty: modelConfig.presence_penalty,
-      frequency_penalty: modelConfig.frequency_penalty,
-      top_p: modelConfig.top_p,
       user_id: useChatStore.getState().currentSession().id,
       sentence: messages[messages.length - 1].content,
     };
