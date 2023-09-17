@@ -2,12 +2,12 @@
   "$schema": "../node_modules/@tauri-apps/cli/schema.json",
   "build": {
     "devPath": "http://localhost:3000",
-    "distDir": "CHATGPT_ENDPOINT",
+    "distDir": "__CHATGPT_ENDPOINT__",
     "withGlobalTauri": true
   },
   "package": {
     "productName": "ChatGPT",
-    "version": "CHATGPT_VERSION"
+    "version": "__CHATGPT_VERSION__"
   },
   "tauri": {
     "allowlist": {

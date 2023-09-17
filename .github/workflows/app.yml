@@ -67,13 +67,15 @@ jobs:
         with:
           node-version: 16
 
-      - name: replace the env
-        uses: falnyr/replace-env-vars-action@master
+      - uses: cschleiden/replace-tokens@v1
+        with:
+          tokenPrefix: '__'
+          tokenSuffix: '__'
+          files: '["./src-tauri/tauri.conf.json"]'
         env:
           CHATGPT_ENDPOINT: ${{ github.event.inputs.endpoint }}
           CHATGPT_VERSION: ${{ github.event.inputs.version }}
-        with:
-          filename: ./src-tauri/tauri.conf.json
+
 
       - run: cat ./src-tauri/tauri.conf.json
 
