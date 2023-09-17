@@ -1,6 +1,9 @@
 name: Release App
 
 on:
+  release:
+    types:
+      - published
   workflow_dispatch:
     inputs:
       version:
@@ -73,8 +76,8 @@ jobs:
           tokenSuffix: '__'
           files: '["./src-tauri/tauri.conf.json"]'
         env:
-          CHATGPT_ENDPOINT: ${{ github.event.inputs.endpoint }}
-          CHATGPT_VERSION: ${{ github.event.inputs.version }}
+          CHATGPT_ENDPOINT:  ${{ github.event.inputs.endpoint || secrets.CHATGPT_ENDPOINT }}
+          CHATGPT_VERSION: ${{ github.event.release.tag_name ||  github.event.inputs.version }}
 
 
       - run: cat ./src-tauri/tauri.conf.json
