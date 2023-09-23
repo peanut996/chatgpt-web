@@ -2,7 +2,9 @@
   "$schema": "../node_modules/@tauri-apps/cli/schema.json",
   "build": {
     "devPath": "http://localhost:3000",
-    "distDir": "__CHATGPT_ENDPOINT__",
+    "beforeBuildCommand": "yarn export",
+    "beforeDevCommand": "yarn export:dev",
+    "distDir": "../out",
     "withGlobalTauri": true
   },
   "package": {
