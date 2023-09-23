@@ -78,6 +78,9 @@ jobs:
         env:
           CHATGPT_ENDPOINT:  ${{ github.event.inputs.endpoint || secrets.CHATGPT_ENDPOINT }}
           CHATGPT_VERSION: ${{ github.event.release.tag_name ||  github.event.inputs.version }}
+          NEXT_PUBLIC_BASE_URL: ${{ secrets.NEXT_PUBLIC_BASE_URL }}
+          NEXT_PUBLIC_CLIENT_SECRET: ${{ secrets.NEXT_PUBLIC_CLIENT_SECRET }}
+          NEXT_PUBLIC_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_CLIENT_ID }}
 
 
       - run: cat ./src-tauri/tauri.conf.json
