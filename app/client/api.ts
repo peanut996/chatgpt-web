@@ -127,9 +127,13 @@ export const api = new ClientApi();
 
 export function getHeaders() {
   const accessStore = useAccessStore.getState();
+  const clientId = process.env.NEXT_PUBLIC_CLIENT_ID || "client_id";
+  const clientSecret = process.env.NEXT_PUBLIC_CLIENT_SECRET || "client_secret";
   let headers: Record<string, string> = {
     "Content-Type": "application/json",
     "x-requested-with": "XMLHttpRequest",
+    "CF-Access-Client-Id": clientId,
+    "CF-Access-Client-Secret": clientSecret,
   };
 
   const makeBearer = (token: string) => `Bearer ${token.trim()}`;

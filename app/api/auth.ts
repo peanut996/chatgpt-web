@@ -3,7 +3,7 @@ import { getServerSideConfig } from "../config/server";
 import md5 from "spark-md5";
 import { ACCESS_CODE_PREFIX } from "../constant";
 
-const SALT = process.env.SALT;
+const SALT = process.env.NEXT_PUBLIC_SALT;
 
 function getIP(req: NextRequest) {
   let ip = req.ip ?? req.headers.get("x-real-ip");

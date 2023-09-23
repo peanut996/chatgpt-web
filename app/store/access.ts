@@ -2,6 +2,7 @@ import { DEFAULT_API_HOST, DEFAULT_MODELS, StoreKey } from "../constant";
 import { getHeaders } from "../client/api";
 import { getClientConfig } from "../config/client";
 import { createPersistStore } from "../utils/store";
+import { validateAccessCode } from "@/app/utils";
 
 let fetchState = 0; // 0 not fetch, 1 fetching, 2 done
 
@@ -9,10 +10,14 @@ const DEFAULT_OPENAI_URL =
   getClientConfig()?.buildMode === "export" ? DEFAULT_API_HOST : "/api/openai/";
 console.log("[API] default openai url", DEFAULT_OPENAI_URL);
 
+const HAS_SALT = !!process.env.NEXT_PUBLIC_SALT;
+
+const SALT = process.env.NEXT_PUBLIC_SALT;
+
 const DEFAULT_ACCESS_STATE = {
   token: "",
   accessCode: "",
-  needCode: true,
+  needCode: HAS_SALT,
   hideUserApiKey: true,
   hideBalanceQuery: true,
   disableGPT4: false,
@@ -39,12 +44,16 @@ export const useAccessStore = createPersistStore(
       set(() => ({ openaiUrl: url?.trim() }));
     },
     isAuthorized() {
-      this.fetch();
-
       // has token or has code or disabled access control
-      return (
-        !!get().token || !!get().accessCode || !this.enabledAccessControl()
-      );
+      const enabled = this.enabledAccessControl();
+      if (!enabled) {
+        return true;
+      }
+      const accessCode = get().accessCode;
+      if (accessCode) {
+        return validateAccessCode(accessCode, SALT);
+      }
+      return false;
     },
     fetch() {
       if (fetchState > 0 || getClientConfig()?.buildMode === "export") return;

@@ -8,10 +8,9 @@ const isApp = !!getClientConfig()?.isApp;
 const en: LocaleType = {
   WIP: "Coming Soon...",
   Error: {
-    Unauthorized: isApp
-      ? "Invalid API Key, please check it in [Settings](/#/settings) page."
-      : "Unauthorized access, please enter access code in [auth](/#/auth) page.\n\n" +
-        "🔗 [ObtainAccessCode](https://notion.peanut996.cn/Q-A-f90c96b7343f415dbed8e7d5870f4a80)\n\n",
+    Unauthorized:
+      "Unauthorized access, please enter access code in [auth](/#/auth) page.\n\n" +
+      "🔗 [ObtainAccessCode](https://notion.peanut996.cn/Q-A-f90c96b7343f415dbed8e7d5870f4a80)\n\n",
   },
   Auth: {
     Title: "Need Access Code",

@@ -74,7 +74,7 @@ jobs:
         with:
           tokenPrefix: '__'
           tokenSuffix: '__'
-          files: '["./src-tauri/tauri.conf.json", ".env.production"]'
+          files: '["./src-tauri/tauri.conf.json", ".env.local"]'
         env:
           CHATGPT_ENDPOINT:  ${{ github.event.inputs.endpoint || secrets.CHATGPT_ENDPOINT }}
           CHATGPT_VERSION: ${{ github.event.release.tag_name ||  github.event.inputs.version }}

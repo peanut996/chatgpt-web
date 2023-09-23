@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import styles from "./settings.module.scss";
 
@@ -35,16 +35,16 @@ import { ModelConfigList } from "./model-config";
 import { IconButton } from "./button";
 import {
   SubmitKey,
-  useChatStore,
   Theme,
-  useUpdateStore,
   useAccessStore,
   useAppConfig,
+  useChatStore,
+  useUpdateStore,
 } from "../store";
 
 import Locale, {
-  AllLangs,
   ALL_LANG_OPTIONS,
+  AllLangs,
   changeLang,
   getLang,
 } from "../locales";
@@ -586,8 +586,6 @@ export function Settings() {
   }, []);
 
   const clientConfig = useMemo(() => getClientConfig(), []);
-  const showAccessCode = enabledAccessControl && !clientConfig?.isApp;
-
   // @ts-ignore
   return (
     <ErrorBoundary>
@@ -762,8 +760,6 @@ export function Settings() {
           </ListItem>
         </List>
 
-        <>{false && <SyncItems />}</>
-
         <List>
           <ListItem
             title={Locale.Settings.Mask.Splash.Title}
@@ -832,7 +828,7 @@ export function Settings() {
         </List>
 
         <List>
-          {showAccessCode ? (
+          {enabledAccessControl ? (
             <ListItem
               title={Locale.Settings.AccessCode.Title}
               subTitle={Locale.Settings.AccessCode.SubTitle}

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { showToast } from "./components/ui-lib";
 import Locale from "./locales";
+import md5 from "spark-md5";
 
 export function trimTopic(topic: string) {
   return topic.replace(/[，。！？”“"、,.!?]*$/, "");
@@ -172,4 +173,26 @@ export function autoGrowTextArea(dom: HTMLTextAreaElement) {
 
 export function getCSSVar(varName: string) {
   return getComputedStyle(document.body).getPropertyValue(varName).trim();
+}
+
+export function validateAccessCode(
+  token: string | null,
+  salt: string | undefined,
+): boolean {
+  if (!salt) {
+    return true;
+  }
+  try {
+    if (!token) {
+      return false;
+    }
+    const [invitationCode, hashPart] = token.split("-");
+    const hash = md5
+      .hash(invitationCode + salt)
+      .trim()
+      .substring(0, 10);
+    return hash === hashPart;
+  } catch (e) {
+    return false;
+  }
 }

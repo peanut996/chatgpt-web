@@ -3,12 +3,12 @@ import { NextRequest, NextResponse } from "next/server";
 export const OPENAI_URL = "api.openai.com";
 const DEFAULT_PROTOCOL = "https";
 const PROTOCOL = process.env.PROTOCOL || DEFAULT_PROTOCOL;
-const BASE_URL = process.env.BASE_URL || OPENAI_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || OPENAI_URL;
 const DISABLE_GPT4 = !!process.env.DISABLE_GPT4;
 
 const getCFHeaders = () => {
-  const clientId = process.env.CLIENT_ID || "client_id";
-  const clientSecret = process.env.CLIENT_SECRET || "client_secret";
+  const clientId = process.env.NEXT_PUBLIC_CLIENT_ID || "client_id";
+  const clientSecret = process.env.NEXT_PUBLIC_CLIENT_SECRET || "client_secret";
   return {
     "CF-Access-Client-Id": clientId,
     "CF-Access-Client-Secret": clientSecret,
